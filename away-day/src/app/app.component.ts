@@ -2,108 +2,272 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { startWith, switchMap, map, catchError, mergeMap, concatMap } from 'rxjs/operators';
-import { StadiumLocation, Team } from './interfaces/interfaces';
+import { startWith, switchMap, map, catchError } from 'rxjs/operators';
+import { Crime, Team } from './interfaces/interfaces';
 import { RequestsService } from './requests.service';
-import {merge, of as observableOf, of} from 'rxjs';
+import { merge, of as observableOf } from 'rxjs';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { SelectionModel } from '@angular/cdk/collections';
+
+let defaultTeam: Team[] = [
+  { name: 'none', address: 'none', founded: 'none', website: 'none' },
+];
+
+const defaultCrime: Crime[] = [
+  {
+    id: 'none',
+    month: 'none',
+    category: 'none',
+    location_type: 'none',
+    outcome_status: {
+      category: 'none',
+      date: 'none',
+    },
+  },
+];
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements AfterViewInit {
-  displayedColumns: string[] = ['name', 'address', 'founded', 'website'];
+export class AppComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatTable) table!: MatTable<any>;
+  @ViewChild(MatPaginator) crimePaginator!: MatPaginator;
+  @ViewChild(MatSort) teamSort!: MatSort;
+  @ViewChild(MatSort) crimeSort!: MatSort;
+
+  teamDataSource: MatTableDataSource<Team>;
+  crimeDataSource: MatTableDataSource<Crime>;
   requestsService: RequestsService | null = null;
-  data: Team[] = [];
+
+  teamDisplayedColumns: string[] = [
+    'select',
+    'name',
+    'address',
+    'founded',
+    'website',
+  ];
+  crimeDisplayedColumns: string[] = [
+    'id',
+    'month',
+    'category',
+    'location_type',
+    'outcome_status_category',
+    'outcome_status_date',
+  ];
 
   resultsLength = 0;
-  isLoadingResults = true;
-  isRateLimitReached = false;
+  isLoadingTeams = false;
+  isLoadingCrimes = false;
 
-  public leagueCode = 'PL';
-  public crimes: Object ={};
-  public postcode: Object ={};
+  // This is the provided League Code for the EPL.
+  public leagueCode = '2021';
 
-  @ViewChild(MatPaginator)
-  paginator!: MatPaginator;
-  @ViewChild(MatSort)
-  sort!: MatSort;
+  // API currently only returns data in last 3 years
+  // If I had more time I would query competition to get count
+  public yearList: number[] = [];
+  private yearPlWasCreated = 2018; // Change to 1992 if API access is upgraded to all results
+  private currentYear = new Date().getFullYear() - 1; // As if a season isn't complete it won't be returned
 
-  constructor(private _httpClient: HttpClient) { }
+  public yearSelected = '*Not yet selected*';
+  public club = '*Not yet selected*';
+
+  constructor(private _httpClient: HttpClient) {
+    this.teamDataSource = new MatTableDataSource(defaultTeam);
+    this.crimeDataSource = new MatTableDataSource(defaultCrime);
+  }
+
+  ngOnInit() {
+    for (var i = this.yearPlWasCreated; i <= this.currentYear; i++) {
+      this.yearList.push(i);
+    }
+    this.refresh();
+  }
 
   ngAfterViewInit() {
     this.requestsService = new RequestsService(this._httpClient);
 
-    // If the user changes the sort order, reset back to the first page.
-    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+    this.teamDataSource.sort = this.teamSort;
 
-    merge(this.sort.sortChange, this.paginator.page)
+    this.crimeDataSource.sort = this.crimeSort;
+    this.crimeDataSource.paginator = this.crimePaginator;
+  }
+
+  public getTeamsForSeason() {
+    this.isLoadingTeams = true;
+    this.teamDataSource.data = [];
+    this.crimeDataSource.data = [];
+    merge()
       .pipe(
         startWith({}),
         switchMap(() => {
-          this.isLoadingResults = true;
-          return this.requestsService!.getAllUniquePremierLeagueTeams(this.leagueCode)}),
+          this.isLoadingTeams = true;
+          return this.requestsService!.sendTeamsGetRequest(
+            this.leagueCode,
+            this.yearSelected
+          );
+        }),
         map((data) => {
-          // Flip flag to show that loading has finished.
-          this.isLoadingResults = false;
-          this.isRateLimitReached = false;
-          this.resultsLength = data.length;
+          this.isLoadingTeams = false;
 
           return data;
         }),
         catchError(() => {
-          this.isLoadingResults = false;
-          // Catch if any of the API's has reached its rate limit. Return empty data.
-          this.isRateLimitReached = true;
+          this.teamDataSource.data = [
+            {
+              name: 'not found',
+              address: 'not found',
+              founded: 'not found',
+              website: 'not found',
+            },
+          ];
+          this.isLoadingTeams = false;
           return observableOf([]);
         })
-      ).subscribe(data => this.data = data);
+      )
+      .subscribe((data) => {
+        this.teamDataSource.data = [...data];
+        this.teamDataSource.sort = this.teamSort;
+        this.table.renderRows();
+      });
   }
 
-  // ngOnInit() {
-  //   this.getListOfPremierLeagueTeams();
+  public getCrimesForClub(lat: string, long: string) {
+    this.isLoadingCrimes = true;
+    let crimes: Crime[] = [];
+    for (let month = 1; month <= 12; month++) {
+      const monthString = month < 10 ? `0${month}` : `${month}`;
+      this.requestsService!.sendCrimesGetRequest(
+        this.yearSelected,
+        monthString,
+        lat,
+        long
+      ).subscribe((data: Crime[]) => {
+        this.isLoadingCrimes = true;
+        data.forEach((crime) => {
+          if (crime != null) {
+            crimes.push({
+              id: crime.id,
+              month: this.getMonthName(crime.month),
+              category: this.getCategory(crime.category),
+              location_type: crime.location_type,
+              outcome_status: this.getOutcomeStatus(crime.outcome_status),
+            });
+          }
+        });
+        this.isLoadingCrimes = false;
+        this.resultsLength = crimes.length;
 
-    //For every season they have on record on the db.
-    //Get all clubs for that season
-    //From that create a unique list of all clubs that have ever played in the PL
-    //Get the postcode of each of these clubs
-    //And looping through every day on record
-    //Collate the crime rate for each of the clubs.
-  // }
-
-  public getListOfPremierLeagueTeams() {
-    this.requestsService!.sendTeamsGetRequest(this.leagueCode, 2000).subscribe((plTeams: Team[])=>{
-      const postcode = this.parsePostcodeFromAddress(plTeams[0].address);
-      this.getLatitideAndLongitudeForPostcode(postcode);
-    }); 
+        this.crimeDataSource.data = [...crimes];
+        this.crimeDataSource.sort = this.crimeSort;
+        this.crimeDataSource.paginator = this.crimePaginator;
+        this.table.renderRows();
+      });
+    }
   }
 
-  public getLatitideAndLongitudeForPostcode(postcode: string) {
-    this.requestsService!.sendPostcodeGetRequest(postcode).subscribe((location: StadiumLocation)=>{
-      const currentYear = 2020;
-      const startOfRecords = 1990;
-      for (let year = currentYear; year > startOfRecords; year--) {
-        for (let month = 1; month <= 12; month++) {
-          const monthString = month < 10 ? `0${month}` : `${month}`;
-          this.getCrimes(year, monthString, location.latitude, location.longitude);
+  refresh(): void {
+    this.table.renderRows();
+  }
+
+  //#region Checkbox Logic
+  selection = new SelectionModel<Team>(true, []);
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.teamDataSource.data.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+
+    this.selection.select(...this.teamDataSource.data);
+  }
+
+  /** The label for the checkbox on the passed row */
+  checkboxLabel(row?: Team): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
+      row.name
+    }`;
+  }
+
+  checkboxClicked(evt: Event, row: Team) {
+    this.club = row.name;
+    this.getLatitideAndLongitudeForPostcode(row.address);
+    evt.stopPropagation();
+  }
+
+  //#endregion
+
+  public getLatitideAndLongitudeForPostcode(address: string) {
+    const postcode = this.parsePostcodeFromAddress(address);
+    this.requestsService!.sendPostcodeGetRequest(postcode).subscribe(
+      (location) => {
+        this.getCrimesForClub(location.latitude, location.longitude);
       }
-      }
-    });
-  }
-
-  public getCrimes(year: number, month: string, lat: number, long: number) {
-    this.requestsService!.sendCrimesGetRequest(year, month, lat, long).subscribe(
-      data => console.log('success', data)
     );
   }
 
-
   // Helpers
 
-  protected parsePostcodeFromAddress(address: string){
-      var addressParts = address.split(' ');
-      return `${addressParts[addressParts.length - 2]} ${addressParts[addressParts.length - 1]}`;
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.teamDataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.teamDataSource.paginator) {
+      this.teamDataSource.paginator.firstPage();
+    }
   }
 
+  protected parsePostcodeFromAddress(address: string) {
+    var addressParts = address.split(' ');
+    return `${addressParts[addressParts.length - 2]} ${
+      addressParts[addressParts.length - 1]
+    }`;
+  }
+
+  protected getCategory(category: any) {
+    if (category != null) {
+      return category
+        .split('-')
+        .map((word: string) => {
+          return word[0].toUpperCase() + word.substring(1);
+        })
+        .join(' ');
+    }
+    return { category: 'Category Unknown' };
+  }
+
+  protected getMonthName(monthString: string) {
+    if (monthString != null) {
+      const monthNumber = monthString.split('-')[1];
+      return new Date(2021, parseInt(monthNumber), 1).toLocaleString(
+        'default',
+        {
+          month: 'short',
+        }
+      );
+    }
+    return 'Month Unknown';
+  }
+
+  protected getOutcomeStatus(outcome_status: any) {
+    if (outcome_status != null) {
+      return {
+        category: outcome_status.category,
+        date: outcome_status.date,
+      };
+    }
+    return { category: 'Outcome Unknown', date: 'Date Unknown' };
+  }
 }

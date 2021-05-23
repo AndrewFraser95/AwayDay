@@ -2,48 +2,153 @@
 
 <!-- Toolbar -->
 <div class="toolbar" role="banner">
-  <img width="40" alt="Angular Logo" src="https://cdn.freelogovectors.net/wp-content/uploads/2020/08/epl-premierleague-logo.png" />
+  <img
+    width="40"
+    alt="Premier League Logo"
+    src="https://cdn.freelogovectors.net/wp-content/uploads/2020/08/epl-premierleague-logo.png"
+  />
   <span>Welcome to Away Day Safe-tay</span>
 </div>
 
 <div class="content" role="main">
-  <div class="example-loading-shade"
-       *ngIf="isLoadingResults || isRateLimitReached">
-    <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
-    <div class="example-rate-limit-reached" *ngIf="isRateLimitReached">
-      One of the API rate limits has been reached. It will be reset soon.
-    </div>
+  <h1>Please choose what Year you would like to look at figures for</h1>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Select an option</mat-label>
+    <mat-select
+      [(value)]="yearSelected"
+      (selectionChange)="getTeamsForSeason()"
+    >
+      <mat-option *ngFor="let year of yearList" [value]="year">
+        {{ year }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="example-loading-shade" *ngIf="isLoadingTeams">
+    <mat-spinner *ngIf="isLoadingTeams"></mat-spinner>
   </div>
 
-  <h1>List of all clubs that have been part of the English Premier League (EPL)</h1>
+  <h1>
+    List of clubs in English Premier League (EPL): Season starting
+    {{ yearSelected }}
+  </h1>
 
-    <table mat-table [dataSource]="data" class="example-table"
-           matSort matSortActive="created" matSortDisableClear matSortDirection="desc">
+  <div class="mat-elevation-z12 information-table">
+    <table
+      mat-table
+      [dataSource]="teamDataSource"
+      class="team-table"
+      #teamSort="matSort"
+      matSort
+      matSortActive="name"
+      matSortDisableClear
+      matSortDirection="asc"
+    >
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox
+            (click)="checkboxClicked($event, row)"
+            (change)="$event ? selection.toggle(row) : null"
+            [checked]="selection.isSelected(row)"
+            [aria-label]="checkboxLabel(row)"
+          >
+          </mat-checkbox>
+        </td>
+      </ng-container>
 
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let row">{{row.name}}</td>
+        <th mat-sort-header *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let row">{{ row.name }}</td>
       </ng-container>
 
       <ng-container matColumnDef="address">
-        <th mat-header-cell *matHeaderCellDef>Address</th>
-        <td mat-cell *matCellDef="let row">{{row.address}}</td>
+        <th mat-sort-header *matHeaderCellDef>Address</th>
+        <td mat-cell *matCellDef="let row">{{ row.address }}</td>
       </ng-container>
 
       <ng-container matColumnDef="founded">
-        <th mat-header-cell *matHeaderCellDef>Founded</th>
-        <td mat-cell *matCellDef="let row">{{row.founded}}</td>
+        <th mat-sort-header *matHeaderCellDef>Founded</th>
+        <td mat-cell *matCellDef="let row">{{ row.founded }}</td>
       </ng-container>
 
       <ng-container matColumnDef="website">
-        <th mat-header-cell *matHeaderCellDef>Website</th>
-        <td mat-cell *matCellDef="let row">{{row.website}}</td>
+        <th mat-sort-header *matHeaderCellDef>Website</th>
+        <td mat-cell *matCellDef="let row">
+          <a href="{{ row.website }}" noopener noreferer>{{ row.website }}</a>
+        </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-header-row *matHeaderRowDef="teamDisplayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: teamDisplayedColumns"
+        (click)="selection.toggle(row)"
+      ></tr>
     </table>
   </div>
 
-  <mat-paginator [length]="resultsLength" [pageSize]="30"></mat-paginator>
+  <h1>List of crimes at {{ club }}: Season starting {{ yearSelected }}</h1>
 
+  {{ isLoadingCrimes }}
+  <div class="example-loading-shade" *ngIf="isLoadingCrimes">
+    <mat-spinner *ngIf="isLoadingCrimes"></mat-spinner>
+  </div>
+
+  <div class="mat-elevation-z12 information-table">
+    <table
+      mat-table
+      [dataSource]="crimeDataSource"
+      class="crime-table"
+      #crimeSort="matSort"
+      matSort
+      matSortActive="month"
+      matSortDisableClear
+      matSortDirection="asc"
+    >
+      <ng-container matColumnDef="id">
+        <th mat-sort-header *matHeaderCellDef>id</th>
+        <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="month">
+        <th mat-sort-header *matHeaderCellDef>Month</th>
+        <td mat-cell *matCellDef="let row">{{ row.month }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="category">
+        <th mat-sort-header *matHeaderCellDef>Category</th>
+        <td mat-cell *matCellDef="let row">{{ row.category }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="location_type">
+        <th mat-sort-header *matHeaderCellDef>Location Type</th>
+        <td mat-cell *matCellDef="let row">{{ row.location_type }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="outcome_status_category">
+        <th mat-sort-header *matHeaderCellDef>Outcome Status Category</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.outcome_status.category }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="outcome_status_date">
+        <th mat-sort-header *matHeaderCellDef>Outcome Status Date</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.outcome_status.date }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="crimeDisplayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: crimeDisplayedColumns"
+        (click)="selection.toggle(row)"
+      ></tr>
+    </table>
+
+    <mat-paginator [length]="resultsLength" [pageSize]="25"></mat-paginator>
+  </div>
+</div>

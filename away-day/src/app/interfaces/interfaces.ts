@@ -1,33 +1,22 @@
-  export class StadiumLocation {
-    latitude: number;
-    longitude: number;
+export interface Team {
+  name: string;
+  address: string;
+  founded: string;
+  website: string;
+}
 
-    constructor(latitude: number, longitude: number) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-      }
-  }
+export interface StadiumLocation {
+  latitude: string;
+  longitude: string;
+}
 
-  export class Team {
-    name: string;
-    address: string;
-    founded: string;
-    website: string;
-
-    constructor (name: string, address: string, founded: string, website: string) {
-      this.name = name;
-      this.address = address;
-      this.founded = founded;
-      this.website = website;
-     }
-  }
-
-  export class Crimes {
+export interface Crime {
+  id: string;
+  month: string;
+  category: string;
+  location_type: string;
+  outcome_status: {
     category: string;
-    outcomeStatusCategory: string;
-
-    constructor(category: string, outcomeStatusCategory: string) {
-        this.category = category;
-        this.outcomeStatusCategory = outcomeStatusCategory;
-      }
-  }
+    date: string;
+  };
+}

@@ -1,5 +1,5 @@
 # AwayDay
-Statistics for Crime Rates, at Premier League Stadiums, since the league began
+Statistics for Crime Rates, at Premier League Stadiums, since the league began.
 
 # Welcome
 Welcome to Away Day - Safety (Pronouced safe-tay)
@@ -18,22 +18,29 @@ A list of recorded crimes... (Step 2)
 # (Step 1)
 So my POA would be to query the Teams API for all with League Code of PL.
 Nuances: Some teams will have entered and then left the league
-so getting crime data for when demoted back to championship is a hurdle.
+so getting crime data for when demoted back to championship could be a hurdle.
+This makes it easier to structure queries in a year-first format.
+E.g. For a given year, there is a given arrangement of teams, of which had crime for said year.
 
+# (Step 2)
 At this point we link it to crime data.
 From my experience of match days, a lot of crime occurs not only at the stadium postcode
-but the surrounding area/train stations, so loosening the "net" may be a good idea.
+but the surrounding area/train stations, so loosening the "net" could be an area of focus in the future.
+E.g. Using a Maps API to query the nearest train & bus station, and the 10 most popular pubs in the area.
 
-Once we have made the requests for each of the postcodes, within the timeframe of them
-being within the Premier League, next comes the fun bit.
-
-We sort this data, and group by season/year and try and find fun ways to display
-this data to the user using Angular and Materials frontend.
-
-# POA
-I think it's more extensible to retrieve data by League Code instead of ID (but thanks for providing it)
+# (Step 3)
+This step has been made slightly easier given our year-first approach.
+So that a user chooses a year, followed by a team, and is then displayed all crime for that year and postcode
+in a table, split across multiple pages.
+Annoyingly I will have to create a list of the months as the Romans didn't want me to be able to alphatically sort.
+Grouping by crime can be done fairly easily with an alpha-numeric sort.
 
 # Running
 To run this application
 1. cd away-day
 2. ng serve --open
+
+# Instructions
+1. Please choose a year from the dropdown
+2. Then select 1 team from the first table that you would like statistics on
+3. Bon Apetit
