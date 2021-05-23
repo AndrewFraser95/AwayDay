@@ -18,7 +18,7 @@ A list of recorded crimes... (Step 2)
 
 # (Step 1)
 So my POA would be to query the Teams API for all with League Code of PL.
-## Nuances: Some teams will have entered and then left the league
+#### Nuances: Some teams will have entered and then left the league
 so getting crime data for when demoted back to championship could be a hurdle.
 This makes it easier to structure queries in a year-first format.
 E.g. For a given year, there is a given arrangement of teams, of which had crime for said year.
