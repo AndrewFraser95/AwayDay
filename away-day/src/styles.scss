@@ -1,6 +1,63 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~@angular/material/prebuilt-themes/deeppurple-amber";
 
+//General
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.fixed {
+  table-layout: fixed;
+}
+
+.square {
+  height: 200px;
+  width: 200px;
+  background-color: #e0e0e0;
+  border: 2px solid;
+}
+
+.btn {
+  text-transform: none;
+}
+
+//Table
+
+.mat-table {
+  overflow: auto;
+  font-family: "Open Sans", sans-serif;
+  width: 100%;
+}
+
+th.mat-header-cell:first-of-type,
+td.mat-cell:first-of-type,
+td.mat-footer-cell:first-of-type {
+  padding: 24px;
+}
+
+th.mat-header-cell,
+td.mat-cell,
+td.mat-footer-cell {
+  padding: 1em;
+}
+
+.mat-cell:nth-child(4),
+.mat-header-cell:nth-child(4) {
+  flex: 0 0 40px;
+}
+
+.mat-cell:nth-child(5),
+.mat-header-cell:nth-child(5) {
+  flex: 0 0 40px;
+}
+
+th.mat-sort-header {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}

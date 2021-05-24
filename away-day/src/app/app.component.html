@@ -1,3 +1,4 @@
+<title>away-day</title>
 <link rel="stylesheet/less" type="text/css" href="app.component.scss" />
 
 <!-- Toolbar -->
@@ -9,145 +10,34 @@
   />
   <span>Welcome to Away Day Safe-tay</span>
 </div>
+<!-- Toolbar End -->
 
 <div class="content" role="main">
-  <h1>Please choose what Year you would like to look at figures for</h1>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Select an option</mat-label>
-    <mat-select
-      [(value)]="yearSelected"
-      (selectionChange)="getTeamsForSeason()"
+  <mat-accordion class="tables-accordian">
+    <mat-expansion-panel
+      [expanded]="showTeamsTable === true"
+      (opened)="hideCrimeTable()"
+      (opened)="showTeamsTable = true"
+      (closed)="showTeamsTable = false"
     >
-      <mat-option *ngFor="let year of yearList" [value]="year">
-        {{ year }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <div class="example-loading-shade" *ngIf="isLoadingTeams">
-    <mat-spinner *ngIf="isLoadingTeams"></mat-spinner>
-  </div>
-
-  <h1>
-    List of clubs in English Premier League (EPL): Season starting
-    {{ yearSelected }}
-  </h1>
-
-  <div class="mat-elevation-z12 information-table">
-    <table
-      mat-table
-      [dataSource]="teamDataSource"
-      class="team-table"
-      #teamSort="matSort"
-      matSort
-      matSortActive="name"
-      matSortDisableClear
-      matSortDirection="asc"
+      <mat-expansion-panel-header>
+        <mat-panel-title> Premier League Teams </mat-panel-title>
+      </mat-expansion-panel-header>
+      <teams-component
+        (requestCrimesEvent)="getLatitideAndLongitudeForPostcode($event)"
+      ></teams-component>
+    </mat-expansion-panel>
+    <mat-expansion-panel
+      [expanded]="showCrimesTable === true"
+      (opened)="showCrimesTable = true"
+      (closed)="showCrimesTable = false"
     >
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row">
-          <mat-checkbox
-            (click)="checkboxClicked($event, row)"
-            (change)="$event ? selection.toggle(row) : null"
-            [checked]="selection.isSelected(row)"
-            [aria-label]="checkboxLabel(row)"
-          >
-          </mat-checkbox>
-        </td>
-      </ng-container>
+      <mat-expansion-panel-header>
+        <mat-panel-title> Crimes at that Stadium </mat-panel-title>
+      </mat-expansion-panel-header>
+      <crimes-component> </crimes-component>
+    </mat-expansion-panel>
+  </mat-accordion>
 
-      <ng-container matColumnDef="name">
-        <th mat-sort-header *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let row">{{ row.name }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="address">
-        <th mat-sort-header *matHeaderCellDef>Address</th>
-        <td mat-cell *matCellDef="let row">{{ row.address }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="founded">
-        <th mat-sort-header *matHeaderCellDef>Founded</th>
-        <td mat-cell *matCellDef="let row">{{ row.founded }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="website">
-        <th mat-sort-header *matHeaderCellDef>Website</th>
-        <td mat-cell *matCellDef="let row">
-          <a href="{{ row.website }}" noopener noreferer>{{ row.website }}</a>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="teamDisplayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: teamDisplayedColumns"
-        (click)="selection.toggle(row)"
-      ></tr>
-    </table>
-  </div>
-
-  <h1>List of crimes at {{ club }}: Season starting {{ yearSelected }}</h1>
-
-  <div class="example-loading-shade" *ngIf="isLoadingCrimes">
-    <mat-spinner *ngIf="isLoadingCrimes"></mat-spinner>
-  </div>
-
-  <div class="mat-elevation-z12 information-table">
-    <table
-      mat-table
-      [dataSource]="crimeDataSource"
-      class="crime-table"
-      #crimeSort="matSort"
-      matSort
-      matSortActive="month"
-      matSortDisableClear
-      matSortDirection="asc"
-    >
-      <ng-container matColumnDef="id">
-        <th mat-sort-header *matHeaderCellDef>id</th>
-        <td mat-cell *matCellDef="let row">{{ row.id }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="month">
-        <th mat-sort-header *matHeaderCellDef>Month</th>
-        <td mat-cell *matCellDef="let row">{{ row.month }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="category">
-        <th mat-sort-header *matHeaderCellDef>Category</th>
-        <td mat-cell *matCellDef="let row">{{ row.category }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="location_type">
-        <th mat-sort-header *matHeaderCellDef>Location Type</th>
-        <td mat-cell *matCellDef="let row">{{ row.location_type }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="outcome_status_category">
-        <th mat-sort-header *matHeaderCellDef>Outcome Status Category</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.outcome_status.category }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="outcome_status_date">
-        <th mat-sort-header *matHeaderCellDef>Outcome Status Date</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.outcome_status.date }}
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="crimeDisplayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: crimeDisplayedColumns"
-        (click)="selection.toggle(row)"
-      ></tr>
-    </table>
-
-    <mat-paginator [length]="resultsLength" [pageSize]="25"></mat-paginator>
-  </div>
+  <br />
 </div>

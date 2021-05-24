@@ -1,7 +1,6 @@
+//Generic 
 
 :host {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 14px;
   color: #333;
   box-sizing: border-box;
@@ -10,11 +9,7 @@
 }
 
 h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h2{
   margin: 8px 0;
 }
 
@@ -25,6 +20,8 @@ p {
 .spacer {
   flex: 1;
 }
+
+//Heading bar
 
 .toolbar {
   position: absolute;
@@ -43,8 +40,17 @@ p {
   margin: 0 16px;
 }
 
+//Container
+
 .content {
-  width: 1000px;
+  width: 1200px;
+}
+
+crime-component,
+teams-component,
+.tables-accordian,
+table {
+  width: 100%;
 }
 
 .information-table {
@@ -52,46 +58,11 @@ p {
   margin: 2em 0;
 }
 
-.mat-select-panel-wrap{
-    position: relative;
-    top: 26px;
-}
-
-.mat-select-panel-wrap .mat-select-panel{
-    min-width: calc(100% + 12px) !important;
-    transform: translateX(4px) !important
-}
-
 .content {
   display: flex;
   margin: 82px auto 32px;
   padding: 0 16px;
-  max-width: 960px;
+  max-width: 1200px;
   flex-direction: column;
   align-items: center;
 }
-
-a,
-a:visited,
-a:hover {
-  color: #1976d2;
-  text-decoration: none;
-}
-
-a:hover {
-  color: #125699;
-}
-
-table {
-  width: 100%;
-}
-
-// /* Column Widths */
-// .mat-column-number,
-// .mat-column-state {
-//   max-width: 64px;
-// }
-
-// .mat-column-created {
-//   max-width: 124px;
-// }

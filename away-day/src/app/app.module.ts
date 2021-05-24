@@ -13,15 +13,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { TeamsComponent } from './teams/teams.component';
+import { CrimesComponent } from './crimes/crimes.component';
 
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [AppComponent, TeamsComponent, CrimesComponent],
   imports: [
     MatFormFieldModule,
     MatSelectModule,
+    MatExpansionModule,
     MatCheckboxModule,
     FormsModule,
     MatInputModule,
@@ -32,9 +34,9 @@ import { MatInputModule } from '@angular/material/input';
     MatSortModule,
     MatTableModule,
     MatProgressSpinnerModule,
-    MatPaginatorModule
+    MatPaginatorModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

@@ -11,17 +11,18 @@ export class RequestsService {
   private CrimesUrl = 'https://data.police.uk/api/crimes-at-location';
   private PostcodeUrl = 'https://api.postcodes.io/postcodes';
 
-  // Use dateTime
-
   constructor(private httpClient: HttpClient) {}
 
   // Untested
-  public sendTeamsGetRequest(leagueCode: string, year: string) {
+  public sendTeamsGetRequest(leagueCode: string, stage:string, year: string) {
     return this.httpClient
-      .get<Team>(`${this.StadiumUrl}/${leagueCode}/teams?season=${year}`, {
-        // Move this auth token to config or ideally have it replaced at deploy step
-        headers: { 'X-Auth-Token': '669345fd07874b79a8e2443edc6e8382' },
-      })
+      .get<Team>(
+        `${this.StadiumUrl}/${leagueCode}/teams?stage=${stage}&season=${year}`,
+        {
+          // Move this auth token to config or ideally have it replaced at deploy step
+          headers: { 'X-Auth-Token': '669345fd07874b79a8e2443edc6e8382' },
+        }
+      )
       .pipe(
         map((recieved: any) => {
           var listOfTeams: Team[] = [];
