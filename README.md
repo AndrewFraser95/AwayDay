@@ -4,7 +4,8 @@ Statistics for Crime Rates, at Premier League Stadiums, since the league began.
 # Welcome
 Welcome to "Away Day - Safety".
 An angular app trying to answer all parameters of the following requirement:
-"...A list of recorded crimes [2] for Premier League Football Stadiums [1] sorted by year and month.[3]"
+
+"...A list of recorded crimes (Step 2) for Premier League Football Stadiums (Step 1) sorted by year and month (Step 3)"
 
 # Process
 
