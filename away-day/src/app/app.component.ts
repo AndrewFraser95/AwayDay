@@ -22,9 +22,7 @@ export class AppComponent {
   // Untested
   public getLatitideAndLongitudeForPostcode(inputs: string[]) {
     this.requestsService = new RequestsService(this._httpClient);
-
-    this.showCrimesTable = true;
-    this.showTeamsTable = false;
+    this.displayCrimeTable(true);
 
     const postcode = this.parsePostcodeFromAddress(inputs[0]);
     this.requestsService!.sendPostcodeGetRequest(postcode).subscribe(
@@ -42,13 +40,13 @@ export class AppComponent {
   //#region Helpers
 
   // Untested
-  public hideCrimeTable() {
-    this.showCrimesTable = false;
-    this.showTeamsTable = true;
+  public displayCrimeTable(value: boolean) {
+    this.showCrimesTable = value;
+    this.showTeamsTable = !value;
   }
 
   // Untested
-  protected parsePostcodeFromAddress(address: string) {
+  private parsePostcodeFromAddress(address: string) {
     var addressParts = address.split(' ');
     return `${addressParts[addressParts.length - 2]} ${
       addressParts[addressParts.length - 1]

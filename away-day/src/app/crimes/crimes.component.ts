@@ -3,6 +3,7 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { environment } from 'src/environments/environment';
 import { Crime } from '../interfaces/interfaces';
 import { RequestsService } from '../requests.service';
 
@@ -29,23 +30,14 @@ export class CrimesComponent implements AfterViewInit {
   @ViewChild(MatPaginator) crimePaginator!: MatPaginator;
   @ViewChild(MatSort) crimeSort!: MatSort;
 
-  resultsLength = 0;
-  requestsService: RequestsService | null = null;
-  crimeDataSource: MatTableDataSource<Crime>;
-
-  crimeDisplayedColumns: string[] = [
-    'id',
-    'month',
-    'category',
-    'location_type',
-    'outcome_status_category',
-    'outcome_status_date',
-  ];
-
-  public yearSelected = 1992;
-  public club = 'N/A';
-
-  isLoadingCrimes = false;
+  public resultsLength = 0;
+  public crimeDataSource: MatTableDataSource<Crime>;
+  public yearSelected = environment.yearSelected;
+  public crimeDisplayedColumns = environment.crimeDisplayedColumns;
+  public club = environment.club;
+  public isLoadingCrimes = false;
+  
+  private requestsService: RequestsService | null = null;
 
   constructor(private _httpClient: HttpClient) {
     this.crimeDataSource = new MatTableDataSource(defaultCrime);
@@ -100,7 +92,7 @@ export class CrimesComponent implements AfterViewInit {
 
   //#region Helpers
 
-  protected getCategory(category: any) {
+  private getCategory(category: any) {
     if (category != null) {
       return category
         .split('-')
@@ -112,7 +104,7 @@ export class CrimesComponent implements AfterViewInit {
     return { category: 'Category Unknown' };
   }
 
-  protected getMonthName(dateString: string) {
+  private getMonthName(dateString: string) {
     if (dateString != null) {
       const monthString = dateString.split('-')[1];
       return monthString;
@@ -120,7 +112,7 @@ export class CrimesComponent implements AfterViewInit {
     return 'Month Unknown';
   }
 
-  protected getOutcomeStatus(outcome_status: any) {
+  private getOutcomeStatus(outcome_status: any) {
     if (outcome_status != null) {
       return {
         category: outcome_status.category,

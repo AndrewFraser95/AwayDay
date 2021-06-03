@@ -35,7 +35,7 @@
         <mat-checkbox
           (click)="checkboxClicked($event, row)"
           (change)="$event ? checkboxChange(row, i) : null"
-          [checked]="checkboxSelected(row, i)"
+          [checked]="checkboxSelected(i)"
         >
         </mat-checkbox>
       </td>

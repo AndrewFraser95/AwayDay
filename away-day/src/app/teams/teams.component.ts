@@ -14,6 +14,7 @@ import { merge, of as observableOf } from 'rxjs';
 import { startWith, switchMap, map, catchError } from 'rxjs/operators';
 import { Team } from '../interfaces/interfaces';
 import { RequestsService } from '../requests.service';
+import { environment } from './../../environments/environment';
 
 let defaultTeam: Team[] = [
   { name: 'none', address: 'none', founded: 'none', website: 'none' },
@@ -31,26 +32,16 @@ export class TeamsComponent implements OnInit, AfterViewInit {
 
   teamDataSource: MatTableDataSource<Team>;
   isLoadingTeams = false;
-
-  // This is the provided League Code for the EPL.
-  public leagueCode = '2021';
-  public stage = 'PL';
-  public yearSelected = 1992;
-  public club = 'N/A';
-  teamSelected = -1;
-  teamDisplayedColumns: string[] = [
-    'select',
-    'name',
-    'address',
-    'founded',
-    'website',
-  ];
   requestsService: RequestsService | null = null;
+
+  public yearSelected = environment.yearSelected;
+  public teamDisplayedColumns = environment.teamDisplayedColumns;
+  private club = environment.club;
+  private teamSelected = environment.teamSelected;
 
   // API currently only returns data in last 3 years
   // If I had more time I would query competition endpoint to get all values
   public yearList: number[] = [];
-  private yearPlWasCreated = 2018; // Change to 1992 if API access is upgraded to all results
   private currentYear = new Date().getFullYear() - 1; // If a season isn't complete it won't be returned
 
   constructor(private _httpClient: HttpClient) {
@@ -59,7 +50,7 @@ export class TeamsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.requestsService = new RequestsService(this._httpClient);
-    for (var i = this.yearPlWasCreated; i <= this.currentYear; i++) {
+    for (var i = environment.yearPlWasCreated; i <= this.currentYear; i++) {
       this.yearList.push(i);
     }
     this.refresh();
@@ -83,8 +74,8 @@ export class TeamsComponent implements OnInit, AfterViewInit {
         switchMap(() => {
           this.isLoadingTeams = true;
           return this.requestsService!.sendTeamsGetRequest(
-            this.leagueCode,
-            this.stage,
+            environment.leagueCode,
+            environment.stage,
             this.yearSelected.toString()
           );
         }),
@@ -114,7 +105,6 @@ export class TeamsComponent implements OnInit, AfterViewInit {
   }
 
   //#region Checkbox Logic
-
   selection = new SelectionModel<Team>(true, []);
 
   // Untested
@@ -135,7 +125,7 @@ export class TeamsComponent implements OnInit, AfterViewInit {
   }
 
   // Untested
-  checkboxSelected(row: Team, index: number): boolean {
+  checkboxSelected(index: number): boolean {
     return this.teamSelected === index;
   }
 

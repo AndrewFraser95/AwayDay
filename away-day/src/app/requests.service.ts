@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Team, StadiumLocation, Crime } from './interfaces/interfaces';
 import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -14,13 +15,13 @@ export class RequestsService {
   constructor(private httpClient: HttpClient) {}
 
   // Untested
-  public sendTeamsGetRequest(leagueCode: string, stage:string, year: string) {
+  public sendTeamsGetRequest(leagueCode: string, stage: string, year: string) {
     return this.httpClient
       .get<Team>(
         `${this.StadiumUrl}/${leagueCode}/teams?stage=${stage}&season=${year}`,
         {
           // Move this auth token to config or ideally have it replaced at deploy step
-          headers: { 'X-Auth-Token': '669345fd07874b79a8e2443edc6e8382' },
+          headers: { 'X-Auth-Token': environment.authToken },
         }
       )
       .pipe(

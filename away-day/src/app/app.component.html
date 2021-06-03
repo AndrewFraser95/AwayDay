@@ -16,9 +16,8 @@
   <mat-accordion class="tables-accordian">
     <mat-expansion-panel
       [expanded]="showTeamsTable === true"
-      (opened)="hideCrimeTable()"
-      (opened)="showTeamsTable = true"
-      (closed)="showTeamsTable = false"
+      (opened)="displayCrimeTable(false)"
+      (closed)="displayCrimeTable(true)"
     >
       <mat-expansion-panel-header>
         <mat-panel-title> Premier League Teams </mat-panel-title>
@@ -29,8 +28,8 @@
     </mat-expansion-panel>
     <mat-expansion-panel
       [expanded]="showCrimesTable === true"
-      (opened)="showCrimesTable = true"
-      (closed)="showCrimesTable = false"
+      (opened)="displayCrimeTable(true)"
+      (closed)="displayCrimeTable(false)"
     >
       <mat-expansion-panel-header>
         <mat-panel-title> Crimes at that Stadium </mat-panel-title>
