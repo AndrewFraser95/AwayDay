@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  authToken: '669345fd07874b79a8e2443edc6e8382',
+  authToken: 'replace-to-use',
   leagueCode: '2021', // This is the provided League Code for the EPL.
   stage: 'PL',
   club: 'N/A',
